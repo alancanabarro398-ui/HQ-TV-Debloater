@@ -1,0 +1,44 @@
+
+name: Gerar APK HQ TV Debloater
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Extrair projeto
+        run: |
+          unzip -q HQ-TV-Debloater-source.zip -d extracted
+
+      - name: Compilar APK
+        working-directory: extracted/HQ-TV-Debloater
+        run: gradle assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HQ-TV-Debloater-debug-apk
+          path: extracted/HQ-TV-Debloater/app/build/outputs/apk/debug/app-debug.apk
